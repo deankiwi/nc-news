@@ -23,7 +23,7 @@ describe("/api", () => {
         }
       });
   });
-  test("should only contain runnable endpoints", () => {
+  test("should only contain runnable endpoints with exampleResponse containing a similar structure to response on endpoint", () => {
     return request(app)
       .get("/api")
       .expect(200)
