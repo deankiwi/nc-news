@@ -31,9 +31,63 @@ describe("/api", () => {
           expect(articles).toBeSortedBy("created_at", {
             descending: true,
           });
-          // TODO check if object is sorted correctly
         });
     });
+  });
+});
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200 should return comments objects for the corresponding article_id", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments.length).toBe(2);
+        comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: expect.any(Number),
+            })
+          );
+        });
+
+        expect(comments).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+  test("200 should return empty array objects when article_id is correct but has no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toEqual([]);
+      });
+  });
+  test("404 should return empty array objects when article_id given is out of range", () => {
+    return request(app)
+      .get("/api/articles/999999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toEqual("article_id not found");
+      });
+  });
+  test("400 should error handle article_id given is not in correct format", () => {
+    return request(app)
+      .get("/api/articles/notAArticleId/comments")
+      .expect(400)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toEqual("Invalid id type");
+      });
   });
 });
 
