@@ -75,5 +75,23 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "add comment linked to the corresponding article_id",
+    "queries": [],
+    "examplePost": {
+      "username": "USERNAME",
+      "body": "block of test"
+    },
+    "exampleResponse": {
+      "comments": {
+        "comment_id": 11,
+        "votes": 0,
+        "created_at": "2020-09-19T23:10:00.000Z",
+        "author": "USERNAME",
+        "body": "block of test",
+        "article_id": 3
+      }
+    }
   }
 }
