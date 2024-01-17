@@ -5,6 +5,7 @@ const {
   getArticleById,
   getArticles,
   getCommentsForArticle,
+  postCommentToArticleId,
 } = require("./controllers/articles.controllers");
 const {
   customErrorHandler,
@@ -13,6 +14,8 @@ const {
 } = require("./error-handlers");
 
 const app = express();
+
+app.use(express.json());
 
 app.get("/api/topics", getTopics);
 
@@ -23,6 +26,8 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 
 app.get("/api/articles/:article_id/comments", getCommentsForArticle);
+
+app.post("/api/articles/:article_id/comments", postCommentToArticleId);
 
 app.use(psqlErrorHandler);
 

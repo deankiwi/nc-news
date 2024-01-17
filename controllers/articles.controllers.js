@@ -3,6 +3,7 @@ const {
   fetchArticles,
   fetchCommentsForArticle,
   checkArticleIdExists,
+  insertComment,
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -37,6 +38,19 @@ exports.getCommentsForArticle = (req, res, next) => {
   Promise.all(queries)
     .then((response) => {
       comments = response[0];
+      res.send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postCommentToArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const { username, body } = req.body;
+
+  insertComment(username, body, article_id)
+    .then((comments) => {
       res.send({ comments });
     })
     .catch((err) => {
