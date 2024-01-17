@@ -35,6 +35,7 @@ describe("/api", () => {
     });
   });
 });
+
 describe("GET /api/articles/:article_id/comments", () => {
   test("200 should return comments objects for the corresponding article_id", () => {
     return request(app)
@@ -131,5 +132,107 @@ describe("/api", () => {
           });
       });
     });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("200 should return comments objects for the corresponding article_id", () => {
+    const commentToAdd = {
+      username: "butter_bridge",
+      body: "Any fool can write code that a computer can understand. Good programmers write code that humans can understand",
+    };
+    const article_id = 2;
+
+    return request(app)
+      .post(`/api/articles/${article_id}/comments`)
+      .send(commentToAdd)
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeInstanceOf(Object);
+        expect(comments).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: commentToAdd.username,
+            body: commentToAdd.body,
+            article_id: article_id,
+          })
+        );
+      });
+  });
+  test("400 should return error message when 'not null' key values are missing from post object", () => {
+    const postMissingUserName = {
+      body: "there is no compression algorithm for experience",
+    };
+    const postMissingBody = {
+      username: "butter_bridge",
+    };
+
+    const missingUsername = request(app)
+      .post("/api/articles/2/comments")
+      .send(postMissingUserName)
+      .expect(400)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toBe("missing values from post object");
+      });
+
+    const missingBody = request(app)
+      .post("/api/articles/2/comments")
+      .send(postMissingBody)
+      .expect(400)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toBe("missing values from post object");
+      });
+
+    return Promise.all([missingUsername, missingBody]);
+  });
+  test("400 should return error message when article_id is not in correct format", () => {
+    const commentToAdd = {
+      username: "butter_bridge",
+      body: "Life isn't about weathering the storm. It's about learning to dance in the rain",
+    };
+
+    return request(app)
+      .post("/api/articles/NotAnArticleId/comments")
+      .send(commentToAdd)
+      .expect(400)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toBe("Invalid id type");
+      });
+  });
+  test("404 should return error message when key values article_id do not exist", () => {
+    const commentToAdd = {
+      username: "butter_bridge",
+      body: "The person who falls in love with the walking will walk further than the person who loves destination",
+    };
+
+    return request(app)
+      .post("/api/articles/999999999/comments")
+      .send(commentToAdd)
+      .expect(404)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toBe("key value given do not exist");
+      });
+  });
+  test("404 should return error message when key values username do not exist", () => {
+    const commentToAddWithIncorrectUsername = {
+      username: "NOT A REAL USERNAME",
+      body: "A smooth sea never made a skilled sailor",
+    };
+
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(commentToAddWithIncorrectUsername)
+      .expect(404)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toBe("key value given do not exist");
+      });
   });
 });
