@@ -4,6 +4,7 @@ const {
   fetchCommentsForArticle,
   checkArticleIdExists,
   insertComment,
+  updateArticleVote,
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -30,14 +31,8 @@ exports.getArticles = (req, res, next) => {
 exports.getCommentsForArticle = (req, res, next) => {
   const { article_id } = req.params;
 
-  const fetchCommentQuery = fetchCommentsForArticle(article_id);
-  const checkIdExists = checkArticleIdExists(article_id);
-
-  const queries = [fetchCommentQuery, checkIdExists];
-
-  Promise.all(queries)
-    .then((response) => {
-      comments = response[0];
+  fetchCommentsForArticle(article_id)
+    .then((comments) => {
       res.send({ comments });
     })
     .catch((err) => {
@@ -52,6 +47,19 @@ exports.postCommentToArticleId = (req, res, next) => {
   insertComment(username, body, article_id)
     .then((comments) => {
       res.send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.patchArticlesVotes = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+
+  updateArticleVote(article_id, inc_votes)
+    .then((articles) => {
+      res.send({ articles });
     })
     .catch((err) => {
       next(err);

@@ -87,7 +87,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         const { msg } = body;
-        expect(msg).toEqual("Invalid id type");
+        expect(msg).toEqual("Incorrect value given");
       });
   });
 });
@@ -128,7 +128,7 @@ describe("/api", () => {
           .get("/api/articles/xxxxx")
           .expect(400)
           .then(({ body }) => {
-            expect(body.msg).toBe("Invalid id type");
+            expect(body.msg).toBe("Incorrect value given");
           });
       });
     });
@@ -202,7 +202,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         const { msg } = body;
-        expect(msg).toBe("Invalid id type");
+        expect(msg).toBe("Incorrect value given");
       });
   });
   test("404 should return error message when key values article_id do not exist", () => {
@@ -233,6 +233,87 @@ describe("POST /api/articles/:article_id/comments", () => {
       .then(({ body }) => {
         const { msg } = body;
         expect(msg).toBe("key value given do not exist");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200 should return comments objects for the corresponding article_id", () => {
+    const votePatch = {
+      inc_votes: 42,
+    };
+    const article_id = 1;
+
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(votePatch)
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Object);
+        expect(articles).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: article_id,
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: 142,
+            article_img_url: expect.any(String),
+            body: expect.any(String),
+          })
+        );
+      });
+  });
+  test("400 return error for missing inc_votes from PATCH", () => {
+    const article_id = 1;
+
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+
+      .expect(400)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toEqual("missing values from post object");
+      });
+  });
+  test("400 return error for inc_votes value from PATCH, or article_id not correct type", () => {
+    const incorrect_article_id = request(app)
+      .patch(`/api/articles/notCorrectArticleId`)
+      .send({
+        inc_votes: 42,
+      })
+      .expect(400)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toEqual("Incorrect value given");
+      });
+
+    const incorrect_inc_votes = request(app)
+      .patch(`/api/articles/notCorrectArticleId`)
+      .send({
+        inc_votes: "Not in correct form",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toEqual("Incorrect value given");
+      });
+
+    return Promise.all([incorrect_article_id, incorrect_inc_votes]);
+  });
+  test("404 return error for article_id does not exist", () => {
+    const outOfRange_article_id = 99999999;
+
+    return request(app)
+      .patch(`/api/articles/${outOfRange_article_id}`)
+      .send({
+        inc_votes: 42,
+      })
+      .expect(404)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toEqual("article_id not found");
       });
   });
 });

@@ -1,3 +1,4 @@
+const { response } = require("../app");
 const db = require("../db/connection");
 
 exports.fetchArticleById = (article_id) => {
@@ -46,7 +47,9 @@ ORDER BY articles.created_at DESC;
 };
 
 exports.fetchCommentsForArticle = (article_id) => {
-  return db
+  const checkForID = checkArticleIdExists(article_id);
+
+  const fetchComments = db
     .query(
       `
 SELECT
@@ -67,9 +70,13 @@ ORDER BY created_at DESC;
     .then(({ rows }) => {
       return rows;
     });
+
+  return Promise.all([checkForID, fetchComments]).then((response) => {
+    return response[1];
+  });
 };
 
-exports.checkArticleIdExists = (article_id) => {
+const checkArticleIdExists = (article_id) => {
   return db
     .query(
       `
@@ -107,4 +114,25 @@ RETURNING comment_id, body, article_id, author, votes, created_at;
     .then(({ rows }) => {
       return rows[0];
     });
+};
+
+exports.updateArticleVote = (article_id, inc_votes) => {
+  //TODO add in check if article_id works
+  const checkForID = checkArticleIdExists(article_id);
+  const updateVotes = db
+    .query(
+      `
+    UPDATE articles
+    SET votes = votes + $2
+    WHERE article_id = $1
+    RETURNING  author, title, article_id, topic, created_at, votes, article_img_url, body;
+    `,
+      [article_id, inc_votes]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+  return Promise.all([checkForID, updateVotes]).then((response) => {
+    return response[1];
+  });
 };
