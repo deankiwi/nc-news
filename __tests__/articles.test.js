@@ -8,31 +8,29 @@ afterAll(() => db.end());
 
 beforeEach(() => seed(data));
 
-describe("/api", () => {
-  describe("/articles", () => {
-    test("200 should return articles objects each with correct key values", () => {
-      return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(({ body }) => {
-          const { articles } = body;
-          expect(Array.isArray(articles)).toBe(true);
-          expect(articles.length).toBe(13);
-          articles.forEach((article) => {
-            expect(typeof article.author).toBe("string");
-            expect(typeof article.title).toBe("string");
-            expect(typeof article.article_id).toBe("number");
-            expect(typeof article.topic).toBe("string");
-            expect(typeof article.created_at).toBe("string");
-            expect(typeof article.votes).toBe("number");
-            expect(typeof article.article_img_url).toBe("string");
-            expect(typeof article.comment_count).toBe("string");
-          });
-          expect(articles).toBeSortedBy("created_at", {
-            descending: true,
-          });
+describe("GET /api/articles", () => {
+  test("200 should return articles objects each with correct key values", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles.length).toBe(13);
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.comment_count).toBe("string");
         });
-    });
+        expect(articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
   });
 });
 
@@ -238,6 +236,8 @@ describe("POST /api/articles/:article_id/comments", () => {
 });
 
 describe("PATCH /api/articles/:article_id", () => {
+  //TODO go through https://github.com/deanlicious/nc-news/pull/10#pullrequestreview-1829322332
+
   test("200 should return comments objects for the corresponding article_id", () => {
     const votePatch = {
       inc_votes: 42,

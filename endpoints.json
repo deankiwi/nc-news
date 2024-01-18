@@ -110,5 +110,8 @@
         "body": "I find this existence challenging"
       }
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "delete comment linked to the corresponding comment_id"
   }
 }
