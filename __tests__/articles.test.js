@@ -32,6 +32,25 @@ describe("GET /api/articles", () => {
         });
       });
   });
+  test("200 should return articles filtered by given query topic", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles.length).toBe(1);
+      });
+  });
+  test("404 should return error when given bad topic", () => {
+    badTopic = "NotATopic";
+    return request(app)
+      .get(`/api/articles?topic=${badTopic}`)
+      .expect(404)
+      .then(({ body }) => {
+        const { msg } = body;
+        expect(msg).toBe("topic not found");
+      });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
