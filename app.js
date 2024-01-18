@@ -1,4 +1,5 @@
 const express = require("express");
+
 const { getTopics } = require("./controllers/topics.controllers");
 const { getEndPoints } = require("./controllers/api.controllers");
 const {
@@ -8,6 +9,8 @@ const {
   postCommentToArticleId,
   patchArticlesVotes,
 } = require("./controllers/articles.controllers");
+const { deleteComment } = require("./controllers/comments.controllers");
+
 const {
   customErrorHandler,
   psqlErrorHandler,
@@ -31,6 +34,8 @@ app.patch("/api/articles/:article_id", patchArticlesVotes);
 app.get("/api/articles/:article_id/comments", getCommentsForArticle);
 
 app.post("/api/articles/:article_id/comments", postCommentToArticleId);
+
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.use(psqlErrorHandler);
 
