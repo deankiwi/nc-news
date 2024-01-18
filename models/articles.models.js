@@ -18,10 +18,9 @@ exports.fetchArticleById = (article_id) => {
     });
 };
 
-exports.fetchArticles = () => {
-  return db
-    .query(
-      `
+exports.fetchArticles = (topic) => {
+  const queryParameters = [];
+  let queryStr = `
 SELECT 
     articles.author,
     articles.title,
@@ -35,14 +34,21 @@ FROM
     articles
 LEFT JOIN 
     comments ON articles.article_id = comments.article_id
+`;
+  if (topic) {
+    queryStr += `
+WHERE articles.topic = $1`;
+    queryParameters.push(topic);
+  }
+
+  queryStr += `
 GROUP BY
-    articles.article_id
-ORDER BY articles.created_at DESC;
-`
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+articles.article_id
+ORDER BY articles.created_at DESC;`;
+
+  return db.query(queryStr, queryParameters).then(({ rows }) => {
+    return rows;
+  });
 };
 
 exports.fetchCommentsForArticle = (article_id) => {
