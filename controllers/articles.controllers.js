@@ -1,11 +1,13 @@
+const { response } = require("../app");
 const {
   fetchArticleById,
   fetchArticles,
   fetchCommentsForArticle,
-  checkArticleIdExists,
   insertComment,
   updateArticleVote,
 } = require("../models/articles.models");
+
+const { checkTopicExists } = require("../utills/check-exists");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -19,9 +21,18 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  fetchArticles()
+  const { topic } = req.query;
+
+  fetchArticles(topic)
     .then((articles) => {
-      res.send({ articles });
+      queries = [articles];
+      if (articles.length === 0) {
+        queries.push(checkTopicExists(topic));
+      }
+      return Promise.all(queries).then(() => {
+        // const articles = response[0];
+        res.send({ articles });
+      });
     })
     .catch((err) => {
       next(err);
