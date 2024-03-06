@@ -2,6 +2,8 @@
 
 This repository contains the Northcoders News API, which provides access to articles stored in a SQL database through URL endpoints, returning them in JSON format.
 
+For the front end implementation of Northcoders News see [NC news Front end](https://github.com/deankiwi/fe-nc-news)
+
 ## Installation
 
 Before getting started, ensure you have the following software installed:
@@ -106,7 +108,7 @@ For detailed information, refer to [endpoint.json](/endpoints.json)
 ## TODO
 
 - [x] write code for back-end
-- [ ] write code for front-end
+- [x] write code for front-end
 
 ## CONTACT INFORMATION
 
